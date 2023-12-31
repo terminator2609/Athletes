@@ -465,6 +465,50 @@ void inputData(Athlete atheletes[], const unsigned short index)
 	fflush(stdin);
 }
 
+void sortByPersonalBestYearAndPrint(Athlete copyAthletes[], const unsigned short& copyCountAthletes)
+{
+	int count = -1;
+	Athlete current;
+
+	for (int i = 0; i < copyCountAthletes; i++)
+	{
+
+		for (int j = 0; j < copyCountAthletes; j++)
+		{
+			if (j > i && i != 0 || i != j && i == 0)
+			{
+				if (strcmp(copyAthletes[i].discipline, disciplinesList[0].c_str()) == 0 || strcmp(copyAthletes[i].discipline, disciplinesList[1].c_str()))
+				{
+
+					if (copyAthletes[i].personalBestYear > copyAthletes[j].personalBestYear)
+					{
+						count = j;
+					}
+				}
+
+
+
+			}
+		}
+
+		if (count > -1) {
+
+			current = copyAthletes[count];
+
+			copyAthletes[count] = copyAthletes[i];
+
+			copyAthletes[i] = current;
+
+			count = -1;
+
+			i--;
+		}
+	}
+
+	cout << "Successfull sorting by discipline" << endl;
+	cout << "" << endl;
+}
+
 
 void addAthlete(Athlete athletes[], unsigned short& countAthletes) {
 
@@ -731,6 +775,73 @@ int loadDataFromBinaryFile(Athlete athletes[], unsigned short& countAthlete)
 	}
 }
 
+void sortAndPrintByDiscipline(const Athlete athletes[], const unsigned short& countAthletes) {
+
+	Athlete copyAthletes[MAX_SIZE] = { 0 };
+
+	string copyDisciplinesList[MAX_SIZE_DISCIPLINE];
+
+	string current;
+
+	short count = -1;
+
+	for (int i = 0; i < MAX_SIZE_DISCIPLINE; i++) {
+
+		copyDisciplinesList[i] = disciplinesList[i];
+	}
+
+
+	for (int i = 0; i < MAX_SIZE_DISCIPLINE; i++)
+	{
+
+		for (int j = 0; j < MAX_SIZE_DISCIPLINE; j++)
+		{
+			if (j > i && i != 0 || i != j && i == 0)
+			{
+				if (strcmp(copyDisciplinesList[i].c_str(), copyDisciplinesList[j].c_str()) > 0)
+				{
+					count = j;
+				}
+
+			}
+		}
+
+		if (count > -1) {
+
+			current = copyDisciplinesList[count];
+
+			copyDisciplinesList[count] = copyDisciplinesList[i];
+
+			copyDisciplinesList[i] = current;
+
+			count = -1;
+
+			i--;
+		}
+	}
+
+	count = 0;
+
+	for (int i = 0; i < MAX_SIZE_DISCIPLINE; i++) {
+
+		for (int g = 0; g < countAthletes; g++) {
+
+			if (strcmp(copyDisciplinesList[i].c_str(), athletes[g].discipline) == 0) {
+				copyAthletes[count] = athletes[g];
+				count++;
+			}
+		}
+
+		if (count > 0) {
+
+
+		}
+
+	}
+
+
+}
+
 int main()
 {
 
@@ -738,10 +849,11 @@ int main()
 	unsigned short countAthletes(0);
 
 	short choice = -1;
+	short underChoose = -1;
 
 	do
 	{
-		cout << "Choice function:\n[1] Add Athlete\n[2] Print all athletes\n[3] Search and Print\n[4] Sort by discipline\n[5] Save data to file\n[6] Load data to file\n";
+		cout << "Choice function:\n[1] Add Athlete\n[2] Print all athletes\n[3] Search and Print\n[4] Sort by discipline\n[5] Save data to file\n[6] Load data to file\n[7] Other";
 		cin >> choice;
 
 
@@ -838,11 +950,32 @@ int main()
 
 			break;
 
+		case 7:
+
+			system("CLS");
+
+			do
+			{
+				cout << "Other: Choose func\n[1] Print all athletes sorted by discipline\n[2] Search and print all athlete by age\n";
+				cin >> underChoose;
+
+				switch (underChoose)
+				{
+				case 1:
+
+
+				default:
+					break;
+				}
+
+
+			} while (underChoose < 0 || underChoose > 2);
+
 
 		default:
 			break;
 		}
 
-	} while (choice < 0 || choice > 6);
+	} while (choice < 0 || choice > 7);
 
 }
