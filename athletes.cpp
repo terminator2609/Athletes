@@ -138,6 +138,8 @@ string printOption(string currentParam[], unsigned short& chooseOption, unsigned
 
 			cout << "[" << i + 1 << "]" << currentParam[i] << "\n";
 		}
+
+		cout << "[0] Exit\n";
 	}
 	else {
 
@@ -150,6 +152,8 @@ string printOption(string currentParam[], unsigned short& chooseOption, unsigned
 				cout << "[" << i + 1 << "]" << countryBalkan[i] << "\n";
 			}
 
+			cout << "[0] Exit\n";
+
 			break;
 
 		case 2:
@@ -159,6 +163,7 @@ string printOption(string currentParam[], unsigned short& chooseOption, unsigned
 				cout << "[" << i + 1 << "]" << disciplinesList[i] << "\n";
 			}
 
+			cout << "[0] Exit\n";
 			break;
 		default:
 			break;
@@ -260,6 +265,10 @@ string printOption(string currentParam[], unsigned short& chooseOption, unsigned
 			if (optionCount == 0) {
 				selectedParam = countryBalkan[6];
 			}
+
+			break;
+
+		case 0:
 
 			break;
 
@@ -387,7 +396,7 @@ void inputData(Athlete atheletes[], const unsigned short index)
 		cout << "Enter value of personal best for this year: ";
 		cin >> atheletes[index].personalBestYear;
 
-	} while (atheletes[index].personalBestYear < 1 || atheletes[index].personalBestYear > 6);
+	} while (atheletes[index].personalBestYear < 1 || atheletes[index].personalBestYear > 50);
 
 
 	do
@@ -395,7 +404,7 @@ void inputData(Athlete atheletes[], const unsigned short index)
 		cout << "Enter value of personal best in the carier: ";
 		cin >> atheletes[index].personalBest;
 
-	} while (atheletes[index].personalBest < 1 || atheletes[index].personalBestYear < atheletes[index].personalBest || atheletes[index].personalBest > 6);
+	} while (atheletes[index].personalBest < 1 || atheletes[index].personalBestYear < atheletes[index].personalBest || atheletes[index].personalBest > 50);
 
 
 	do
@@ -403,7 +412,7 @@ void inputData(Athlete atheletes[], const unsigned short index)
 		cout << "Enter value of count of Participation in World : ";
 		cin >> atheletes[index].countParticipationWorld;
 
-	} while (atheletes[index].countParticipationWorld < 1);
+	} while (atheletes[index].countParticipationWorld < 0);
 
 	strcpy_s(atheletes[index].name, firstName);
 	strcat_s(atheletes[index].name, " ");
@@ -518,7 +527,7 @@ void addAthlete(Athlete athletes[], unsigned short& countAthletes) {
 
 	unsigned short choiceNAthletes;
 
-	unsigned short optionCount(0), chooseOption(0);
+	unsigned short optionCount(0), chooseOption(0), currentN(0);
 
 	string selectedParam;
 
@@ -551,46 +560,72 @@ void addAthlete(Athlete athletes[], unsigned short& countAthletes) {
 
 			selectedParam = printOption(currentParam, chooseOption, optionCount, 1);
 
-			strcpy_s(athletes[i].country, selectedParam.c_str());
+			if (chooseOption > 0) {
+				strcpy_s(athletes[i].country, selectedParam.c_str());
+			}
 
 
-		} while (chooseOption < 1 || optionCount != 0 && chooseOption > optionCount || chooseOption > MAX_SIZE_COUNTRY);
 
 
-		optionCount = 0;
+		} while (chooseOption < 0 || optionCount != 0 && chooseOption > optionCount || chooseOption > MAX_SIZE_COUNTRY);
 
-		if (i > 0) {
-			manageDiscipline(athletes, currentParam, countAthletes, optionCount, athletes[i].discipline);
+		if (chooseOption > 0) {
+
+			optionCount = 0;
+
+			if (i > 0) {
+				manageDiscipline(athletes, currentParam, countAthletes, optionCount, athletes[i].discipline);
+			}
+
+			do
+			{
+
+				selectedParam = printOption(currentParam, chooseOption, optionCount, 2);
+
+				if (chooseOption > 0) {
+					strcpy_s(athletes[i].discipline, selectedParam.c_str());
+				}
+				else {
+					strcpy_s(athletes[i].country, "");
+				}
+
+
+			} while (chooseOption < 0 || optionCount != 0 && chooseOption > optionCount || chooseOption > MAX_SIZE_DISCIPLINE);
+
+
+			optionCount = 0;
+
+			if (chooseOption > 0) {
+
+				inputData(athletes, i);
+
+
+				system("CLS");
+
+				cout << "Successfull adding athlete with number " << athletes[i].numberAthlete << endl;
+				cout << "" << endl;
+
+				currentN++;
+			}
+			else {
+				break;
+			}
+
 		}
-
-		do
-		{
-
-			selectedParam = printOption(currentParam, chooseOption, optionCount, 2);
-
-
-			strcpy_s(athletes[i].discipline, selectedParam.c_str());
-
-
-		} while (chooseOption < 1 || optionCount != 0 && chooseOption > optionCount || chooseOption > MAX_SIZE_DISCIPLINE);
-
-
-		optionCount = 0;
-
-
-		inputData(athletes, i);
-
-
-		system("CLS");
-
-		cout << "Successfull adding athlete with number " << athletes[i].numberAthlete << endl;
-		cout << "" << endl;
+		else {
+			break;
+		}
 	}
 
-	countAthletes += choiceNAthletes;
+	if (currentN > 0) {
+		countAthletes += currentN;
 
-	cout << "Free space: " << MAX_SIZE - countAthletes << endl;
-	cout << "" << endl;
+		cout << "Free space: " << MAX_SIZE - countAthletes << endl;
+		cout << "" << endl;
+
+		currentN = 0;
+	}
+
 }
 
 void printAllAthletes(const Athlete athletes[], const unsigned short& countAthletes)
