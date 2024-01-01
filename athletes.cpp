@@ -2,6 +2,8 @@
 #include <string>
 #include <iomanip>
 #include <fstream>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -13,16 +15,26 @@ const unsigned short MAX_SIZE_DISCIPLINE = 5;
 
 const string disciplinesList[] = { "200m Sprint", "4x400 Relay", "Pushing Shotgun", "Shepherd's Jump", "Triple Jump" };
 const string countryBalkan[] = { "Albania", "Bosnia and Herzegovina", "Bulgaria", "Greece", "Kosovo", "North Macedonia", "Montenegro" };
+const unsigned short placePoints[6] = { 30, 20, 10, 8, 6, 4 };
+
 
 struct Athlete {
 	char numberAthlete[4];
 	char name[30];
 	unsigned short age;
 	char discipline[20];
-	unsigned int personalBest;
-	unsigned int personalBestYear;
+	unsigned short personalBest;
+	unsigned short personalBestYear;
 	unsigned short countParticipationWorld;
 	char country[25];
+	unsigned short compationResult;
+};
+
+struct CompationMedals {
+	char country[25];
+	unsigned short maxPoint = 0;
+	Athlete countryAthlets[MAX_SIZE_ATHLETES_BY_COUNTRY] = { 0 };
+	unsigned short place;
 };
 
 
@@ -98,36 +110,14 @@ void manageCountry(const Athlete atheletes[], string currentParam[], const unsig
 void printAthleteTemp(const Athlete athletes[], unsigned short index) {
 
 
-	string unit;
-
-	double convertPersonalBestToUnit;
-	double convertPersonalBestYearToUnit;
-
-
-	if (strcmp(athletes[index].discipline, disciplinesList[0].c_str()) == 0 || strcmp(athletes[index].discipline, disciplinesList[1].c_str()) == 0) {
-
-		unit = "minutes";
-
-		convertPersonalBestToUnit = athletes[index].personalBest / 60;
-		convertPersonalBestYearToUnit = athletes[index].personalBestYear / 60;
-	}
-	else {
-		unit = "meters";
-
-		convertPersonalBestToUnit = athletes[index].personalBest / 100;
-		convertPersonalBestYearToUnit = athletes[index].personalBestYear / 100;
-
-
-	}
-
 	cout << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
 	cout << "| " << setiosflags(ios::left) << setw(5) << "A.N" << " | " << setw(30) << "Name" << " | " << setw(3) << "Age" << " | "
 		<< setw(25) << "Country" << " | " << setw(22) << "Discipline" << " | " << setw(30) << "Count of Participation World"
-		<< " | " << setw(30) << "Record for carier( " + unit + ")" << " | " << setw(30) << "Record for year( " + unit + ")" << " |" << endl;
+		<< " | " << setw(20) << "Record for carier" << " | " << setw(20) << "Record for year" << " |" << endl;
 
 	cout << "| " << setiosflags(ios::left) << setw(5) << athletes[index].numberAthlete << " | " << setw(30) << athletes[index].name << " | " << setw(3) << athletes[index].age << " | "
 		<< setw(25) << athletes[index].country << " | " << setw(22) << athletes[index].discipline << " | " << setw(30) << athletes[index].countParticipationWorld
-		<< " | " << setw(30) << setiosflags(ios::fixed) << setprecision(2) << convertPersonalBestToUnit << " | " << setw(30) << setiosflags(ios::fixed) << setprecision(2) << convertPersonalBestYearToUnit << " |" << endl;
+		<< " | " << setw(20) << athletes[index].personalBest << " | " << setw(20) << athletes[index].personalBestYear << " |" << endl;
 	cout << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
 
 }
@@ -400,39 +390,21 @@ void inputData(Athlete atheletes[], const unsigned short index)
 
 	} while (atheletes[index].age < 0 || atheletes[index].age > 100);
 
-	if (strcmp(atheletes[index].discipline, disciplinesList[0].c_str()) == 0 || strcmp(atheletes[index].discipline, disciplinesList[1].c_str()) == 0) {
 
-		do
-		{
-			cout << "Enter value of personal best in the carier[in seconds]: ";
-			cin >> atheletes[index].personalBest;
+	do
+	{
+		cout << "Enter value of personal best for this year: ";
+		cin >> atheletes[index].personalBestYear;
 
-		} while (atheletes[index].personalBest < 0);
+	} while (atheletes[index].personalBestYear < 1 || atheletes[index].personalBestYear > 6);
 
-		do
-		{
-			cout << "Enter value of personal best for this year [in seconds]: ";
-			cin >> atheletes[index].personalBestYear;
 
-		} while (atheletes[index].personalBestYear < 0);
+	do
+	{
+		cout << "Enter value of personal best in the carier: ";
+		cin >> atheletes[index].personalBest;
 
-	}
-
-	if (strcmp(atheletes[index].discipline, disciplinesList[2].c_str()) == 0 || strcmp(atheletes[index].discipline, disciplinesList[3].c_str()) == 0 || strcmp(atheletes[index].discipline, disciplinesList[4].c_str()) == 0) {
-		do
-		{
-			cout << "Enter value of personal best in the carier[in cm]: ";
-			cin >> atheletes[index].personalBest;
-
-		} while (atheletes[index].personalBest < 0);
-
-		do
-		{
-			cout << "Enter value of personal best for this year [in cm]: ";
-			cin >> atheletes[index].personalBestYear;
-
-		} while (atheletes[index].personalBestYear < 0);
-	}
+	} while (atheletes[index].personalBest < 1 || atheletes[index].personalBestYear > atheletes[index].personalBest || atheletes[index].personalBest > 6);
 
 
 	do
@@ -477,16 +449,11 @@ void sortByPersonalBestYearAndPrint(Athlete copyAthletes[], const unsigned short
 		{
 			if (j > i && i != 0 || i != j && i == 0)
 			{
-				if (strcmp(copyAthletes[i].discipline, disciplinesList[0].c_str()) == 0 || strcmp(copyAthletes[i].discipline, disciplinesList[1].c_str()))
+
+				if (copyAthletes[i].personalBestYear < copyAthletes[j].personalBestYear)
 				{
-
-					if (copyAthletes[i].personalBestYear > copyAthletes[j].personalBestYear)
-					{
-						count = j;
-					}
+					count = j;
 				}
-
-
 
 			}
 		}
@@ -505,9 +472,107 @@ void sortByPersonalBestYearAndPrint(Athlete copyAthletes[], const unsigned short
 		}
 	}
 
-	cout << "Successfull sorting by discipline" << endl;
-	cout << "" << endl;
+	for (int i = 0; i < copyCountAthletes; i++)
+	{
+		printAthleteTemp(copyAthletes, i);
+	}
 }
+
+void sortByNameAndPrint(Athlete copyAthletes[], const unsigned short& copyCountAthletes)
+{
+	int count = -1;
+	Athlete current;
+
+	for (int i = 0; i < copyCountAthletes; i++)
+	{
+
+		for (int j = 0; j < copyCountAthletes; j++)
+		{
+			if (j > i && i != 0 || i != j && i == 0)
+			{
+				if (strcmp(copyAthletes[i].name, copyAthletes[j].name) > 0)
+				{
+					count = j;
+				}
+
+			}
+		}
+
+		if (count > -1) {
+
+			current = copyAthletes[count];
+
+			copyAthletes[count] = copyAthletes[i];
+
+			copyAthletes[i] = current;
+
+			count = -1;
+
+			i--;
+		}
+	}
+
+
+	for (int i = 0; i < copyCountAthletes; i++)
+	{
+		printAthleteTemp(copyAthletes, i);
+	}
+
+
+}
+
+int generateCompResult(unsigned short personalBestYear, unsigned short personalBest) {
+
+	double failureChance = (rand()) / RAND_MAX;
+
+	if (failureChance <= 0.05) {
+		return 0;
+	}
+
+	double minResult = personalBestYear * 0.20;
+	double maxResult = personalBest * 0.10;
+
+	return minResult + (rand()) / RAND_MAX * (maxResult - minResult);
+
+}
+
+void sortMedalsByPoint(CompationMedals medals[], const unsigned short counterCountry)
+{
+	int count = -1;
+	CompationMedals current;
+
+	for (int i = 0; i < counterCountry; i++)
+	{
+
+		for (int j = 0; j < counterCountry; j++)
+		{
+			if (j > i && i != 0 || i != j && i == 0)
+			{
+				if (medals[i].maxPoint < medals[j].maxPoint)
+				{
+					count = j;
+				}
+
+			}
+		}
+
+		if (count > -1) {
+
+			current = medals[count];
+
+			medals[count] = medals[i];
+
+			medals[i] = current;
+
+			medals[i].place = i + 1;
+
+			count = -1;
+
+			i--;
+		}
+	}
+}
+
 
 
 void addAthlete(Athlete athletes[], unsigned short& countAthletes) {
@@ -832,12 +897,134 @@ void sortAndPrintByDiscipline(const Athlete athletes[], const unsigned short& co
 			}
 		}
 
-		if (count > 0) {
+		if (count > 1) {
 
+			sortByPersonalBestYearAndPrint(copyAthletes, count);
+
+			memset(copyAthletes, 0, sizeof(Athlete));
+
+			count = 0;
+		}
+
+		if (count == 1) {
+			printAthleteTemp(copyAthletes, 0);
+
+			memset(copyAthletes, 0, sizeof(Athlete));
+
+			count = 0;
+		}
+
+	}
+
+
+}
+
+void sortAndPrintByAge(const Athlete athletes[], const unsigned short& countAthletes) {
+
+	Athlete copyAthletes[MAX_SIZE] = { 0 };
+
+	string current;
+
+	unsigned short selectedAge;
+
+	short count = 0;
+
+	do
+	{
+
+		cout << "Enter value of age for searching: ";
+		cin >> selectedAge;
+
+	} while (selectedAge < 0);
+
+
+	for (int i = 0; i < countAthletes; i++) {
+
+		if (selectedAge == athletes[i].age) {
+			copyAthletes[count] = athletes[i];
+			count++;
+		}
+	}
+
+	if (count > 1) {
+
+		cout << "Print all selected athletes...... " << endl;
+
+		sortByNameAndPrint(copyAthletes, count);
+
+	}
+	else if (count > 0) {
+
+		cout << "Print all selected athletes...... " << endl;
+		printAthleteTemp(copyAthletes, 0);
+	}
+	else {
+		cout << "No found athletes with selected: " << selectedAge << " age" << endl;
+		cout << endl;
+	}
+
+
+
+
+}
+
+void compation(Athlete athletes[], const unsigned short& countAthletes) {
+
+	CompationMedals medals[MAX_SIZE_COUNTRY];
+
+	srand(time(NULL));
+
+	int generatetResult;
+
+	unsigned short counterCountry = 0;
+	unsigned short counterAthletesComp = 0;
+
+	short maxPointSum = 0;
+
+	for (int i = 0; i < countAthletes; i++) {
+
+		do
+		{
+			generatetResult = generateCompResult(athletes[i].personalBestYear, athletes[i].personalBest);
+
+		} while (generatetResult < 0 || generatetResult > 6);
+
+		athletes[i].compationResult = generatetResult;
+
+	}
+
+	for (int i = 0; i < MAX_SIZE_COUNTRY; i++) {
+
+		for (int g = 0; g < countAthletes; g++) {
+
+			if (strcmp(countryBalkan[i].c_str(), athletes[g].country) == 0) {
+
+				if (athletes[i].compationResult > 0) {
+					maxPointSum += placePoints[athletes[i].compationResult - 1];
+				}
+
+				medals[counterCountry].countryAthlets[counterAthletesComp] = athletes[g];
+
+				counterAthletesComp++;
+			}
+		}
+
+		if (counterAthletesComp > 0) {
+
+			strcpy(medals[counterCountry].country, countryBalkan[i].c_str());
+
+			medals[counterCountry].maxPoint = maxPointSum;
+
+			counterCountry++;
+
+			maxPointSum = 0;
+
+			counterAthletesComp = 0;
 
 		}
 
 	}
+
 
 
 }
@@ -853,7 +1040,7 @@ int main()
 
 	do
 	{
-		cout << "Choice function:\n[1] Add Athlete\n[2] Print all athletes\n[3] Search and Print\n[4] Sort by discipline\n[5] Save data to file\n[6] Load data to file\n[7] Other";
+		cout << "Choice function:\n[1] Add Athlete\n[2] Print all athletes\n[3] Search and Print\n[4] Sort by discipline\n[5] Save data to file\n[6] Load data to file\n[7] Other\n[8]Compation and result by country\n";
 		cin >> choice;
 
 
@@ -954,28 +1141,74 @@ int main()
 
 			system("CLS");
 
-			do
-			{
-				cout << "Other: Choose func\n[1] Print all athletes sorted by discipline\n[2] Search and print all athlete by age\n";
-				cin >> underChoose;
-
-				switch (underChoose)
+			if (countAthletes > 1) {
+				do
 				{
-				case 1:
+					cout << "Other: Choose func\n[1] Print all athletes sorted by discipline and year best record\n[2] Search and print all athlete by age\n[0] Exit\n";
+					cin >> underChoose;
+
+					switch (underChoose)
+					{
+					case 1:
+
+						system("CLS");
+
+						sortAndPrintByDiscipline(athletes, countAthletes);
+
+						underChoose = -1;
+
+						break;
 
 
-				default:
-					break;
-				}
+					case 2:
+
+						system("CLS");
+
+						sortAndPrintByAge(athletes, countAthletes);
+
+						underChoose = -1;
+
+						break;
+
+					case 0:
+
+						system("CLS");
+					default:
+						break;
+					}
 
 
-			} while (underChoose < 0 || underChoose > 2);
+				} while (underChoose < 0 || underChoose > 2);
+			}
+			else {
+				cout << "No found athletes or found 1 athlete" << endl;
+				cout << "" << endl;
+			}
 
+			choice = -1;
+
+			break;
+
+		case 8:
+
+			system("CLS");
+
+			if (countAthletes > 0) {
+
+
+			}
+			else {
+
+				cout << "No found customers" << endl;
+				cout << "" << endl;
+			}
+
+			break;
 
 		default:
 			break;
 		}
 
-	} while (choice < 0 || choice > 7);
+	} while (choice < 0 || choice > 9);
 
 }
