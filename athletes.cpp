@@ -15,7 +15,6 @@ const unsigned short MAX_SIZE_DISCIPLINE = 5;
 
 const string disciplinesList[] = { "200m Sprint", "4x400 Relay", "Pushing Shotgun", "Shepherd's Jump", "Triple Jump" };
 const string countryBalkan[] = { "Albania", "Bosnia and Herzegovina", "Bulgaria", "Greece", "Kosovo", "North Macedonia", "Montenegro" };
-const unsigned short placePoints[6] = { 30, 20, 10, 8, 6, 4 };
 
 
 struct Athlete {
@@ -27,14 +26,6 @@ struct Athlete {
 	unsigned short personalBestYear;
 	unsigned short countParticipationWorld;
 	char country[25];
-	unsigned short compationResult;
-};
-
-struct CompationMedals {
-	char country[25];
-	unsigned short maxPoint = 0;
-	Athlete countryAthlets[MAX_SIZE_ATHLETES_BY_COUNTRY] = { 0 };
-	unsigned short place;
 };
 
 
@@ -110,7 +101,7 @@ void manageCountry(const Athlete atheletes[], string currentParam[], const unsig
 void printAthleteTemp(const Athlete athletes[], unsigned short index) {
 
 
-	cout << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
+	cout << "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
 	cout << "| " << setiosflags(ios::left) << setw(5) << "A.N" << " | " << setw(30) << "Name" << " | " << setw(3) << "Age" << " | "
 		<< setw(25) << "Country" << " | " << setw(22) << "Discipline" << " | " << setw(30) << "Count of Participation World"
 		<< " | " << setw(20) << "Record for carier" << " | " << setw(20) << "Record for year" << " |" << endl;
@@ -118,7 +109,7 @@ void printAthleteTemp(const Athlete athletes[], unsigned short index) {
 	cout << "| " << setiosflags(ios::left) << setw(5) << athletes[index].numberAthlete << " | " << setw(30) << athletes[index].name << " | " << setw(3) << athletes[index].age << " | "
 		<< setw(25) << athletes[index].country << " | " << setw(22) << athletes[index].discipline << " | " << setw(30) << athletes[index].countParticipationWorld
 		<< " | " << setw(20) << athletes[index].personalBest << " | " << setw(20) << athletes[index].personalBestYear << " |" << endl;
-	cout << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
+	cout << "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
 
 }
 
@@ -404,7 +395,7 @@ void inputData(Athlete atheletes[], const unsigned short index)
 		cout << "Enter value of personal best in the carier: ";
 		cin >> atheletes[index].personalBest;
 
-	} while (atheletes[index].personalBest < 1 || atheletes[index].personalBestYear > atheletes[index].personalBest || atheletes[index].personalBest > 6);
+	} while (atheletes[index].personalBest < 1 || atheletes[index].personalBestYear < atheletes[index].personalBest || atheletes[index].personalBest > 6);
 
 
 	do
@@ -519,58 +510,6 @@ void sortByNameAndPrint(Athlete copyAthletes[], const unsigned short& copyCountA
 	}
 
 
-}
-
-int generateCompResult(unsigned short personalBestYear, unsigned short personalBest) {
-
-	double failureChance = (rand()) / RAND_MAX;
-
-	if (failureChance <= 0.05) {
-		return 0;
-	}
-
-	double minResult = personalBestYear * 0.20;
-	double maxResult = personalBest * 0.10;
-
-	return minResult + (rand()) / RAND_MAX * (maxResult - minResult);
-
-}
-
-void sortMedalsByPoint(CompationMedals medals[], const unsigned short counterCountry)
-{
-	int count = -1;
-	CompationMedals current;
-
-	for (int i = 0; i < counterCountry; i++)
-	{
-
-		for (int j = 0; j < counterCountry; j++)
-		{
-			if (j > i && i != 0 || i != j && i == 0)
-			{
-				if (medals[i].maxPoint < medals[j].maxPoint)
-				{
-					count = j;
-				}
-
-			}
-		}
-
-		if (count > -1) {
-
-			current = medals[count];
-
-			medals[count] = medals[i];
-
-			medals[i] = current;
-
-			medals[i].place = i + 1;
-
-			count = -1;
-
-			i--;
-		}
-	}
 }
 
 
@@ -826,18 +765,18 @@ int loadDataFromBinaryFile(Athlete athletes[], unsigned short& countAthlete)
 		countAthlete++;
 	}
 
+	if (countAthlete > 0) {
+
+		countAthlete--;
+	}
+
 
 	athletesDataInput.close();
 
-	if (!athletesDataInput.good()) {
-		cout << "Error occurred at reading time!" << endl;
-		return 1;
-	}
-	else {
-		cout << "Successfull load data to file" << endl;
+	cout << "Successfull load data to file" << endl;
 
-		cout << "" << endl;
-	}
+	cout << "" << endl;
+
 }
 
 void sortAndPrintByDiscipline(const Athlete athletes[], const unsigned short& countAthletes) {
@@ -968,66 +907,6 @@ void sortAndPrintByAge(const Athlete athletes[], const unsigned short& countAthl
 
 }
 
-void compation(Athlete athletes[], const unsigned short& countAthletes) {
-
-	CompationMedals medals[MAX_SIZE_COUNTRY];
-
-	srand(time(NULL));
-
-	int generatetResult;
-
-	unsigned short counterCountry = 0;
-	unsigned short counterAthletesComp = 0;
-
-	short maxPointSum = 0;
-
-	for (int i = 0; i < countAthletes; i++) {
-
-		do
-		{
-			generatetResult = generateCompResult(athletes[i].personalBestYear, athletes[i].personalBest);
-
-		} while (generatetResult < 0 || generatetResult > 6);
-
-		athletes[i].compationResult = generatetResult;
-
-	}
-
-	for (int i = 0; i < MAX_SIZE_COUNTRY; i++) {
-
-		for (int g = 0; g < countAthletes; g++) {
-
-			if (strcmp(countryBalkan[i].c_str(), athletes[g].country) == 0) {
-
-				if (athletes[i].compationResult > 0) {
-					maxPointSum += placePoints[athletes[i].compationResult - 1];
-				}
-
-				medals[counterCountry].countryAthlets[counterAthletesComp] = athletes[g];
-
-				counterAthletesComp++;
-			}
-		}
-
-		if (counterAthletesComp > 0) {
-
-			strcpy(medals[counterCountry].country, countryBalkan[i].c_str());
-
-			medals[counterCountry].maxPoint = maxPointSum;
-
-			counterCountry++;
-
-			maxPointSum = 0;
-
-			counterAthletesComp = 0;
-
-		}
-
-	}
-
-
-
-}
 
 int main()
 {
@@ -1038,9 +917,11 @@ int main()
 	short choice = -1;
 	short underChoose = -1;
 
+	loadDataFromBinaryFile(athletes, countAthletes);
+
 	do
 	{
-		cout << "Choice function:\n[1] Add Athlete\n[2] Print all athletes\n[3] Search and Print\n[4] Sort by discipline\n[5] Save data to file\n[6] Load data to file\n[7] Other\n[8]Compation and result by country\n";
+		cout << "Choice function:\n[1] Add Athlete\n[2] Print all athletes\n[3] Search and Print\n[4] Sort by discipline\n[5] Save data to file\n[6] Load data to file\n[7] Other\n[0] Exit\n";
 		cin >> choice;
 
 
@@ -1189,19 +1070,9 @@ int main()
 
 			break;
 
-		case 8:
+		case 0:
 
-			system("CLS");
-
-			if (countAthletes > 0) {
-
-
-			}
-			else {
-
-				cout << "No found customers" << endl;
-				cout << "" << endl;
-			}
+			exit(0);
 
 			break;
 
@@ -1209,6 +1080,6 @@ int main()
 			break;
 		}
 
-	} while (choice < 0 || choice > 9);
+	} while (choice < 0 || choice > 7);
 
 }
